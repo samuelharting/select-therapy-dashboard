@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { LeadUpdate } from '@/types/lead'
+import { Database } from '@/types/database'
+
+type LeadUpdateType = Database['public']['Tables']['leads']['Update']
 
 export async function PATCH(
   request: NextRequest,
@@ -18,12 +20,25 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body: LeadUpdate = await request.json()
+    const body = await request.json()
     const { id } = params
+
+    // Build update object with only provided fields, casting to Database Update type
+    const updateData: LeadUpdateType = {}
+    
+    if (body.patient_name !== undefined) updateData.patient_name = body.patient_name ?? null
+    if (body.phone_number !== undefined) updateData.phone_number = body.phone_number ?? null
+    if (body.dob !== undefined) updateData.dob = body.dob ?? null
+    if (body.pain_reason !== undefined) updateData.pain_reason = body.pain_reason ?? null
+    if (body.insurance !== undefined) updateData.insurance = body.insurance ?? null
+    if (body.location !== undefined) updateData.location = body.location ?? null
+    if (body.scheduling_prefs !== undefined) updateData.scheduling_prefs = body.scheduling_prefs ?? null
+    if (body.status !== undefined) updateData.status = body.status ?? null
+    if (body.notes !== undefined) updateData.notes = body.notes ?? null
 
     const { data, error } = await supabase
       .from('leads')
-      .update(body)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
@@ -45,4 +60,3 @@ export async function PATCH(
     )
   }
 }
-

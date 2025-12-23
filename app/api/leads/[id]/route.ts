@@ -33,10 +33,12 @@ export async function PATCH(
     if (body.status !== undefined) updateData.status = body.status ?? null
     if (body.notes !== undefined) updateData.notes = body.notes ?? null
 
-    // Use type assertion to bypass strict type checking
+    // FIX: Cast the PAYLOAD to any, not the chain.
+    // This works because 'any' is valid even if the method expects 'never'.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.from('leads') as any)
-      .update(updateData)
+    const { data, error } = await supabase
+      .from('leads')
+      .update(updateData as any)
       .eq('id', id)
       .select()
       .single()

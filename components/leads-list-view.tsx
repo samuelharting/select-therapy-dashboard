@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Lead } from '@/types/lead'
+import { Lead, LeadStatus } from '@/types/lead'
 import { StatusBadge } from '@/components/status-badge'
 import { LeadDetailsModal } from '@/components/lead-details-modal'
 import { format } from 'date-fns'
@@ -65,7 +65,7 @@ export function LeadsListView({ leads }: LeadsListViewProps) {
                     {lead.patient_name || '-'}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={lead.status as any} />
+                    <StatusBadge status={lead.status as LeadStatus | null} />
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {lead.pain_reason || '-'}
@@ -87,4 +87,3 @@ export function LeadsListView({ leads }: LeadsListViewProps) {
     </>
   )
 }
-

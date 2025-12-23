@@ -2,6 +2,18 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
 
+interface WebhookRequestBody {
+  patient_name?: string
+  phone_number?: string
+  dob?: string | number
+  pain_reason?: string
+  insurance?: string
+  location?: string
+  scheduling_prefs?: string
+  status?: string
+  notes?: string
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Validate secret key header FIRST (before parsing body)
@@ -28,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body with robust error handling
-    let body: any = null
+    let body: WebhookRequestBody | null = null
     try {
       const text = await request.text()
       
@@ -44,10 +56,10 @@ export async function POST(request: NextRequest) {
       }
 
       // Try to parse JSON
-      body = JSON.parse(text)
+      const parsed = JSON.parse(text)
       
       // Validate it's an object
-      if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         return NextResponse.json(
           { 
             error: 'Invalid JSON: Expected an object',
@@ -56,6 +68,8 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+
+      body = parsed as WebhookRequestBody
     } catch (error) {
       console.error('Failed to parse JSON body:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown parsing error'
